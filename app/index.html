@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang='zh-CN'>
+<head>
+  <meta charset='utf-8'>
+  <title>Cognatlas</title>
+  <link rel='stylesheet' href='style.css'>
+</head>
+<body class='theme-dark'>
+  <div id='app'>
+    <div id='topbar'>
+      <div id='searchbox'>
+        <svg viewBox='0 0 24 24'><circle cx='11' cy='11' r='7'/><path d='M20 20l-4.2-4.2'/></svg>
+        <input id='search-input' placeholder='搜索知识库…   tag:标签  -tag:排除  path:  type:  status:' spellcheck='false'
+               role='combobox' aria-autocomplete='list' aria-controls='search-list' aria-expanded='false' aria-label='检索知识库'>
+        <span id='search-hint'>Ctrl+Shift+F</span>
+      </div>
+      <div id='search-list' class='hidden' role='listbox' aria-label='检索结果'></div>
+    </div>
+    <div id='ribbon'>
+      <button class='rib-btn' id='rib-search' data-icon='search' title='搜索（Ctrl+Shift+F）' aria-label='搜索知识库'></button>
+      <button class='rib-btn' id='rib-command' data-icon='menu' title='命令面板（Ctrl+P）' aria-label='打开命令面板'></button>
+      <button class='rib-btn' id='rib-backlinks' data-icon='link' title='反链面板' aria-label='查看反链面板'></button>
+    </div>
+    <aside id='sidebar'>
+      <div id='side-head'>
+        <div id='vault-name'>知识库</div>
+        <input id='filter' placeholder='搜索文档…' spellcheck='false'>
+      </div>
+      <div id='tree'></div>
+      <div id='backlinks-box'><div class='bl-title'>反链 <span id='bl-count'>0</span></div><div id='backlinks'></div></div>
+    </aside>
+    <main id='main'>
+      <div id='tabs'></div>
+      <div id='doc'>
+        <div id="vaultbar" class="hidden">
+          <div class="vb-text">还没有选择知识库文件夹</div>
+          <button id="vb-choose" class="btn primary">选择知识库文件夹</button>
+          <div id="vb-err" class="vb-err"></div>
+        </div>
+        <div id='banner' class='hidden'></div>
+        <div id='crumb'></div>
+        <div id='welcomebar' class='hidden'></div>
+        <div id='props'></div>
+        <div id='editor'></div>
+        <div id="webpanel" class="hidden">
+          <div id="webbar">
+            <button id="wb-back" data-icon="back" title="后退" aria-label="后退"></button>
+            <button id="wb-fwd" data-icon="forward" title="前进" aria-label="前进"></button>
+            <button id="wb-reload" data-icon="reload" title="刷新" aria-label="刷新页面"></button>
+            <input id="wb-addr" spellcheck="false" placeholder="输入网址或粘贴链接，回车打开" />
+            <button id="wb-snap" class="primary">快照</button>
+            <button id="wb-hist">历史</button>
+            <button id="wb-close" data-icon="close" title="关闭" aria-label="关闭内置浏览器"></button>
+          </div>
+          <div id="webfallback" class="hidden"></div>
+          <div id="webbody">
+            <webview id="wv" partition="persist:kb-web" src="about:blank" webpreferences="contextIsolation=yes,nodeIntegration=no,sandbox=yes,webSecurity=yes"></webview>
+            <div id="webhist" class="hidden"></div>
+          </div>
+        </div>
+      </div>
+      <aside id='entrypanel' class='hidden'>
+        <div id='ep-head'><span id='ep-title'>条目</span><button id='ep-close' data-icon='close' title='关闭' aria-label='关闭条目侧栏'></button></div>
+        <div id='ep-path'></div>
+        <div id='ep-tags'></div>
+        <div id='ep-hist-title'>历史版本 <span id='ep-count'></span></div>
+        <div id='ep-history'></div>
+      </aside>
+    </main>
+    <div id='statusbar'><span id='status-left'>就绪</span><span id='status-mid'></span><span id='status-right'></span></div>
+  </div>
+  <div id='palette' class='modal hidden'>
+    <input id='palette-input' placeholder='输入命令…'>
+    <div id='palette-list'></div>
+  </div>
+  <div id='checkpanel' class='modal hidden'>
+    <div class='dlg-title'>检查当前文档</div>
+    <div id='check-summary'></div>
+    <div id='check-list'></div>
+    <div class='dlg-btns'><button id='check-close' class='btn'>关闭</button></div>
+  </div>
+  <div id='dialog' class='modal hidden'>
+    <div class='dlg-title'></div>
+    <input id='dialog-input'>
+    <div class='dlg-btns'>
+      <button id='dialog-cancel' class='btn'>取消</button>
+      <button id='dialog-ok' class='btn primary'>确定</button>
+    </div>
+  </div>
+  <div id='switcher' class='modal hidden'>
+    <input id='switcher-input' placeholder='快速切换文档…'>
+    <div id='switcher-list'></div>
+  </div>
+  <div id='peek' class='hidden'></div>
+  <script src='bundle.js'></script>
+
+  <div id="plugin-hosts" hidden></div>
+  <div id="plugin-ui"></div>
+</body>
+</html>

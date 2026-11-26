@@ -1,0 +1,2 @@
+CodeMirror 6 packages are licensed under the MIT License.
+See https://github.com/codemirror/dev for the upstream project and package-level LICENSE files.

@@ -1,0 +1,30 @@
+# 依赖与构建产物
+node_modules/
+dist/
+coverage/
+__pycache__/
+*.py[cod]
+*.log
+
+# 本地环境与密钥
+.env
+.env.*
+*.pem
+*.key
+*.p12
+tokens.json
+token
+
+# 测试临时目录
+test/.tmp/
+tmp/
+
+# 编辑器与系统
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# 发布物（只放 Release asset，不进 git）
+*.zip
+*.tar.gz

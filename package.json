@@ -1,0 +1,32 @@
+{
+  "name": "cognatlas",
+  "productName": "Cognatlas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cognatlas: a local-first visual AI knowledge base",
+  "license": "Apache-2.0",
+  "author": "Cognatlas contributors",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:renderer": "esbuild app/renderer.js --bundle --outfile=app/bundle.js --format=iife --target=chrome120",
+    "test": "node test/kb-core.test.js"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "esbuild": "^0.28.2"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.18.0",
+    "@codemirror/commands": "^6.7.0",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "^6.10.0",
+    "@codemirror/language-data": "^6.5.0",
+    "@codemirror/search": "^6.7.3",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.34.0"
+  }
+}
