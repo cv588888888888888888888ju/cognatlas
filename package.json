@@ -1,7 +1,7 @@
 {
   "name": "cognatlas",
   "productName": "Cognatlas",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Cognatlas: a local-first visual AI knowledge base",
   "license": "Apache-2.0",
@@ -13,7 +13,8 @@
   "scripts": {
     "start": "electron .",
     "build:renderer": "esbuild app/renderer.js --bundle --outfile=app/bundle.js --format=iife --target=chrome120",
-    "test": "node test/kb-core.test.js"
+    "test": "node test/kb-core.test.js && node test/bootstrap.test.js",
+    "test:bootstrap": "node test/bootstrap.test.js"
   },
   "devDependencies": {
     "electron": "^33.0.0",

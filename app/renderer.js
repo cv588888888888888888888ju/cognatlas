@@ -2062,7 +2062,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (first) await openDoc(first);
     }
   } else if (first) await openDoc(first);
-  if (!current && !flat.length) { await openWelcome(); setStatus('空文件夹已初始化 Git 仓库 · 按 Ctrl+N 新建第一篇', ''); }
+  if (!flat.length) {
+    if (!current) await openWelcome();
+    const vs = await api.vaultState();
+    setStatus(vs && vs.has_okf ? '已建立知识库 · 按 Ctrl+N 新建第一篇' : '文件夹已打开 · 没有 .okf 工具链，保存不会提交', '');
+  }
   saveSession();
   window.__kbReady = true;
 });

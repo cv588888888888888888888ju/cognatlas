@@ -1,5 +1,20 @@
 # 变更记录
 
+## 0.1.1 — 2026-11-26
+
+### 修复
+
+- 空目录首次打开不再只做 git init：现在会生成完整的 .okf 工具链并做首次提交；
+  保存走 okf fmt/lint/commit，不再返回 NO-OKF。
+- 只有 .git 的旧空目录也会补建 .okf；已有 .okf 的库不覆盖。
+- 非空且无 .okf 的目录仍保持只读可编辑，不自动改写用户文件。
+
+### 新增
+
+- 内置通用 OKF starter：okf、okf_commit.py、config.yaml、health.yaml、
+  broken-links 与 stale-docs 检查器。
+- 空库状态栏提示与 test/bootstrap.test.js。
+
 ## 0.1.0 — 2026-11-26（preview）
 
 首个可发布预览。公开名称定为 Cognatlas（cognition + atlas）；产品路径迁移到 cognatlas，旧数据自动复制。
@@ -21,7 +36,7 @@
 
 - Windows exe 未签名；SmartScreen 会提示未知发布者。
 - 无自动更新；升级需手动覆盖。
-- 空目录不是建库器：没有 .okf 时只能编辑，不能提交/health/插件。
+- 空目录不是建库器：没有 .okf 时只能编辑，不能提交/health/插件（0.1.1 已修复）。
 - 插件默认信任；client 插件虽有 iframe 隔离，仍是你主动安装的代码。
 - 令牌不是操作系统级安全边界。
 - macOS 与 ARM 未构建。

@@ -30,6 +30,7 @@ contextIsolation: true、nodeIntegration: false，preload 只暴露白名单方�
 | app/renderer.js | 编辑器、文件树、属性面板、检索、插件 UI |
 | app/bundle.js | esbuild 产物；改 renderer.js 后必须重建 |
 | core/kb-core.js | 索引、树、补全、反链、保存、改名、检索、git/okf 调用 |
+| core/okf-starter/ | 空目录首次打开时复制的 .okf 工具链模板 |
 | core/cli.js | kb 命令行入口 |
 | core/fm.py | frontmatter parse/build/canon（PyYAML） |
 | core/identity.js | 令牌解析顺序与客户端首启签发 |

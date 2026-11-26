@@ -12,6 +12,8 @@ const http = require('node:http');
 
 const IS_WIN = process.platform === 'win32';
 const DEFAULT_ROOT = path.join(os.homedir(), 'KnowledgeBase');
+/** 内置 OKF 脚手架；只在“空目录”首次打开时复制到 <root>/.okf。 */
+const STARTER_DIR = path.join(__dirname, 'okf-starter');
 
 /** 随包运行时目录：Windows 包把 python/ 与 git/ 放在 resources/runtime 下。 */
 function runtimeDir() {
@@ -138,7 +140,9 @@ class KB {
 
   // ---------------------------------------------------------------- 索引
   async load() {
-    this.ensureRepo();
+    const ensured = this.ensureRepo();
+    if (!ensured.ok) throw new Error(ensured.error + (ensured.detail ? ': ' + ensured.detail : ''));
+    this.bootstrap = ensured;
     // git 视野 = 已跟踪 + 未跟踪未忽略（口径同 okf 的 git_scoped_markdown）
     const listed = run('git', ['-c', 'core.quotepath=false', 'ls-files', '-z', '*.md'], { cwd: this.root });
     if (listed.code !== 0) throw new Error('git ls-files 失败：' + listed.stderr);
@@ -178,28 +182,89 @@ class KB {
     return this;
   }
 
-  /** 原地建库：目录不是 git 仓库时自动 git init，并补齐 quotepath 与提交身份。 */
-  ensureRepo() {
-    const has = run('git', ['rev-parse', '--git-dir'], { cwd: this.root });
-    if (has.code === 0) {
-      if (IS_WIN) {
-        // MinGit 的系统配置默认 core.autocrlf=true，会把 LF 文档签成 CRLF，导致保存后整篇“被改动”
-        run('git', ['config', 'core.autocrlf', 'false'], { cwd: this.root });
-        run('git', ['config', 'core.safecrlf', 'false'], { cwd: this.root });
-      }
-      return { ok: true, created: false };
+  /** 空目录判定：只有 .git（上一次只初始化过仓库）也算空；有任何用户文件就不动。 */
+  isEmptyDir() {
+    try {
+      return fs.readdirSync(this.root).every((name) => name === '.git');
+    } catch {
+      return !fs.existsSync(this.root);
     }
-    fs.mkdirSync(this.root, { recursive: true });
-    const init = run('git', ['init', '-q'], { cwd: this.root });
-    if (init.code !== 0) return { ok: false, error: 'GIT-INIT-FAILED', detail: (init.stdout + init.stderr).trim() };
+  }
+
+  /** 把内置 OKF 脚手架复制到 <root>/.okf；先写临时目录再改名，失败不留下半个 .okf。 */
+  installOkfStarter() {
+    const dest = path.join(this.root, '.okf');
+    if (fs.existsSync(dest)) return { ok: false, error: 'OKF-EXISTS' };
+    if (!fs.existsSync(STARTER_DIR)) return { ok: false, error: 'STARTER-MISSING', detail: STARTER_DIR };
+    const tmp = path.join(this.root, '.okf.tmp-' + process.pid + '-' + Date.now());
+    const copyTree = (src, out) => {
+      const st = fs.statSync(src);
+      if (st.isDirectory()) {
+        fs.mkdirSync(out, { recursive: true });
+        for (const name of fs.readdirSync(src)) copyTree(path.join(src, name), path.join(out, name));
+        return;
+      }
+      fs.mkdirSync(path.dirname(out), { recursive: true });
+      fs.writeFileSync(out, fs.readFileSync(src));
+    };
+    try {
+      fs.mkdirSync(tmp, { recursive: true });
+      copyTree(STARTER_DIR, tmp);
+      if (!IS_WIN) fs.chmodSync(path.join(tmp, 'okf'), 0o755);
+      fs.renameSync(tmp, dest);
+      return { ok: true };
+    } catch (err) {
+      try { fs.rmSync(tmp, { recursive: true, force: true }); } catch { /* 临时目录清理失败不掩盖原始错误 */ }
+      return { ok: false, error: 'OKF-STARTER-FAILED', detail: String(err && err.message || err) };
+    }
+  }
+
+  /** 首次建库时把 .okf 提交进 git；失败只记在返回值里，不阻止已经可用的库打开。 */
+  commitStarter() {
+    const add = run('git', ['add', '--', '.okf'], { cwd: this.root });
+    if (add.code !== 0) return { ok: false, error: 'GIT-ADD-FAILED', detail: (add.stdout + add.stderr).trim() };
+    const c = run('git', ['commit', '-m', '初始化 OKF 知识库'], { cwd: this.root });
+    return c.code === 0
+      ? { ok: true }
+      : { ok: false, error: 'GIT-COMMIT-FAILED', detail: (c.stdout + c.stderr).trim() };
+  }
+
+  /**
+   * 打开知识库前的初始化：
+   * - 空目录（含只有 .git 的旧空目录）→ 自动生成 .okf 工具链并做首次提交；
+   * - 已有 .okf 的库 → 只补 git 配置，绝不动 .okf；
+   * - 非空且无 .okf 的目录 → 保持原行为（git init / 可读可编辑，保存降级 NO-OKF）。
+   */
+  ensureRepo() {
+    const rootExists = fs.existsSync(this.root);
+    const empty = !rootExists || this.isEmptyDir();
+    if (!rootExists) fs.mkdirSync(this.root, { recursive: true });
+
+    let scaffolded = false;
+    if (empty && !fs.existsSync(path.join(this.root, '.okf'))) {
+      const starter = this.installOkfStarter();
+      if (!starter.ok) return starter;
+      scaffolded = true;
+    }
+
+    const has = run('git', ['rev-parse', '--git-dir'], { cwd: this.root });
+    let created = false;
+    if (has.code !== 0) {
+      const init = run('git', ['init', '-q'], { cwd: this.root });
+      if (init.code !== 0) return { ok: false, error: 'GIT-INIT-FAILED', detail: (init.stdout + init.stderr).trim() };
+      created = true;
+    }
     run('git', ['config', 'core.quotepath', 'false'], { cwd: this.root });
     if (IS_WIN) {
+      // MinGit 的系统配置默认 core.autocrlf=true，会把 LF 文档签成 CRLF，导致保存后整篇“被改动”
       run('git', ['config', 'core.autocrlf', 'false'], { cwd: this.root });
       run('git', ['config', 'core.safecrlf', 'false'], { cwd: this.root });
     }
     if (run('git', ['config', 'user.name'], { cwd: this.root }).code !== 0) run('git', ['config', 'user.name', 'cognatlas'], { cwd: this.root });
     if (run('git', ['config', 'user.email'], { cwd: this.root }).code !== 0) run('git', ['config', 'user.email', 'cognatlas@localhost'], { cwd: this.root });
-    return { ok: true, created: true };
+
+    const initialCommit = scaffolded ? this.commitStarter() : null;
+    return { ok: true, created, scaffolded, initialCommit };
   }
 
   hasOkf() { return fs.existsSync(IS_WIN ? this.okfScript : this.okf); }

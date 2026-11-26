@@ -188,7 +188,7 @@ function createWindow(initialDoc) {
 
 function registerIpc() {
   const NO_VAULT = { ok: false, error: 'NO-VAULT' };
-  ipcMain.handle('kb:vaultState', () => ({ ok: !!kb, root: kb ? kb.root : null }));
+  ipcMain.handle('kb:vaultState', () => ({ ok: !!kb, root: kb ? kb.root : null, has_okf: kb ? kb.hasOkf() : false, bootstrap: kb ? kb.bootstrap || null : null }));
   ipcMain.handle('kb:whoami', () => ({ ok: true, identity: AUTH.identity, name: AUTH.name }));
   ipcMain.handle('kb:lastCommit', (_e, rel) => ({ ok: true, commit: kb ? kb.lastCommit(rel) : null }));
   ipcMain.handle('kb:chooseVault', async () => {

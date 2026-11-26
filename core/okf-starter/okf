@@ -1,0 +1,31 @@
+#!/bin/sh
+# ============================================================
+#  OKF 知识库统一入口 —— Linux / ECS 版
+#  用法: okf  fmt|lint|commit|status|baseline  [args...]
+#  Windows 对应物: 知识库根目录的 okf.cmd（同一套 okf_commit.py）
+#  依赖: python3.8+ 且该解释器已装 PyYAML；git
+#  本文件位于 .okf/ 内，故 ROOT = 本文件上一级目录
+# ============================================================
+set -u
+SELF=$(readlink -f -- "$0" 2>/dev/null || printf '%s' "$0")
+ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
+
+PY="${OKF_PYTHON:-}"
+if [ -n "$PY" ]; then
+  "$PY" -c 'import yaml' >/dev/null 2>&1 || { echo "okf: OKF_PYTHON=$PY 缺少 PyYAML" >&2; exit 1; }
+else
+  for c in /usr/bin/python3.8 python3.8 /usr/bin/python3 python3 python; do
+    if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import yaml' >/dev/null 2>&1; then
+      PY=$c
+      break
+    fi
+  done
+fi
+if [ -z "$PY" ]; then
+  echo "okf: 找不到带 PyYAML 的 python3（修复: /usr/bin/python3.8 -m pip install pyyaml）" >&2
+  exit 1
+fi
+
+exec "$PY" "$ROOT/.okf/okf_commit.py" "$@"

@@ -63472,9 +63472,10 @@
         if (first) await openDoc(first);
       }
     } else if (first) await openDoc(first);
-    if (!current && !flat.length) {
-      await openWelcome();
-      setStatus("\u7A7A\u6587\u4EF6\u5939\u5DF2\u521D\u59CB\u5316 Git \u4ED3\u5E93 \xB7 \u6309 Ctrl+N \u65B0\u5EFA\u7B2C\u4E00\u7BC7", "");
+    if (!flat.length) {
+      if (!current) await openWelcome();
+      const vs = await api.vaultState();
+      setStatus(vs && vs.has_okf ? "\u5DF2\u5EFA\u7ACB\u77E5\u8BC6\u5E93 \xB7 \u6309 Ctrl+N \u65B0\u5EFA\u7B2C\u4E00\u7BC7" : "\u6587\u4EF6\u5939\u5DF2\u6253\u5F00 \xB7 \u6CA1\u6709 .okf \u5DE5\u5177\u94FE\uFF0C\u4FDD\u5B58\u4E0D\u4F1A\u63D0\u4EA4", "");
     }
     saveSession();
     window.__kbReady = true;

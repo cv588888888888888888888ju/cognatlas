@@ -2,9 +2,9 @@
 
 ## 安装
 
-1. 解压 `cognatlas-0.1.0-win32-x64.zip` 到任意目录（支持空格与中文路径，例如 `D:\工具\Cognatlas`）。
+1. 解压 `cognatlas-0.1.1-win32-x64.zip` 到任意目录（支持空格与中文路径，例如 `D:\工具\Cognatlas`）。
 2. 双击 `cognatlas.exe`。
-3. 首次启动会显示内置介绍文档与「还没有选择知识库文件夹」。点按钮选择已有的 OKF 知识库根目录；选空目录只会 `git init`，**不会生成 .okf 工具链**，不能提交/健康检查/加载插件。
+3. 首次启动会显示内置介绍文档与「还没有选择知识库文件夹」。点按钮选择一个空目录会自动生成 `.okf` 工具链并做首次提交；选择已有 OKF 知识库根目录则直接打开。非空且没有 `.okf` 的目录不会被改写，只做 `git init`。
 
 **不需要预装 Python 或 Git**：`resources\runtime\python` 是 Python 3.12.8 embeddable（含纯 Python PyYAML 6.0.3），`resources\runtime\git` 是 MinGit 2.56.1。
 

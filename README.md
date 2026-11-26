@@ -1,10 +1,10 @@
 # Cognatlas
 
 一个本地优先、可视化浏览的 AI 知识库桌面客户端：编辑自然、元数据自动补齐、保存即提交。
-基于 Electron 33 + CodeMirror 6，面向单用户、单机、已有 OKF 知识库。
+基于 Electron 33 + CodeMirror 6，面向单用户、单机；已有 OKF 知识库可直接打开，空目录会自动建库。
 Cognatlas 由 cognition + atlas 组成：不是记东西的地方，而是把认知画成一张可看、可走的地图。
 
-当前版本 **0.1.0（preview）**；变更见 [CHANGELOG.md](CHANGELOG.md)。Linux x64 为主要支持平台；Windows x64 为预览版，
+当前版本 **0.1.1（preview）**；变更见 [CHANGELOG.md](CHANGELOG.md)。Linux x64 为主要支持平台；Windows x64 为预览版，
 已在 Wine 11.22 下完成启动、中文路径、保存提交、插件与健康检查验证。
 
 ## 功能
@@ -17,30 +17,33 @@ Cognatlas 由 cognition + atlas 组成：不是记东西的地方，而是把认
 - 外链默认在线打开，自动快照与离线回退。
 - 声明式插件与 trusted client 插件；插件代码在 sandbox iframe 中运行。
 - 健康检查：读取知识库 .okf/health.yaml，支持自定义检查器。
-- 内置中英文介绍文档；空库也能阅读介绍，但不会替你创建 .okf 工具链。
+- 内置中英文介绍文档；空目录首次打开会自动生成可提交、可做健康检查的 .okf 工具链。
 
 ## 安装
 
 ### Linux x64（主要支持）
 
-发布包：cognatlas-0.1.0-linux-x64.tar.gz
+发布包：cognatlas-0.1.1-linux-x64.tar.gz
 
 ~~~bash
-tar -xzf cognatlas-0.1.0-linux-x64.tar.gz
+tar -xzf cognatlas-0.1.1-linux-x64.tar.gz
 ./cognatlas-linux-x64/cognatlas
 ~~~
 
-需要系统已安装 Git 与 Python 3；知识库必须已经是一个 OKF 库
-（根目录下存在 .okf/okf_commit.py）。首次启动选择知识库根目录，
-或设置 KB_ROOT 环境变量。
+需要系统已安装 Git 与 Python 3（以及 Python 包 PyYAML）。首次启动选择空目录时，
+客户端会自动生成 `.okf` 工具链并做首次提交；选择已有 OKF 知识库
+（根目录下存在 `.okf/okf_commit.py`）则直接打开。也可以设置 `KB_ROOT`。
+
+非空且没有 `.okf` 的目录不会被改写：仍可阅读和编辑，但保存会返回
+`NO-OKF`，不能提交或跑健康检查。
 
 ### Windows x64（预览）
 
-发布包：cognatlas-0.1.0-win32-x64.zip
+发布包：cognatlas-0.1.1-win32-x64.zip
 
 1. 解压到任意目录（支持空格与中文路径）。
 2. 双击 cognatlas.exe。
-3. 首次启动选择已有 OKF 知识库根目录。
+3. 首次启动选择一个空目录会自动建库；选择已有 OKF 知识库根目录则直接打开。
 
 Windows 包已随带 Python 3.12.8 与 MinGit 2.56.1，不需要另装 Python 或 Git。
 详见 [docs/WINDOWS.md](docs/WINDOWS.md)。
@@ -62,7 +65,7 @@ KB_ROOT=/path/to/your/okf-vault npm start
 
 ## 快速开始
 
-1. 启动后选择知识库文件夹；客户端会记住路径。
+1. 启动后选择知识库文件夹；空目录会自动建库，客户端会记住路径。
 2. 左侧树打开一篇文档，正文直接编辑。
 3. 停手约 1.2 秒自动保存并提交；Ctrl+S 立即保存。
 4. Ctrl+P 打开命令面板；Ctrl+Shift+F 全库检索；Ctrl+F 当前文档查找。

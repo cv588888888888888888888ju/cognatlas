@@ -1,0 +1,15 @@
+# 健康标准。okf health 读取本文件；阈值按“文档总数”的比例或绝对数判定。
+version: 1
+thresholds:
+  errors_max: 0
+  ghost_max: 0
+  unreadable_max: 0
+  no_frontmatter_ratio_max: 0.10
+  machine_confirmed_ratio_min: 0.70
+  stale_ratio_max: 0.25
+  checker_errors_max: 0
+# 检查器参数：这里只写要覆盖 .okf/config.yaml 的键；留空 = 沿用 config 层。
+# 同一个 checker 名下的参数表整体替换，不做深合并。
+checkers:
+  params: {}
+external: {}

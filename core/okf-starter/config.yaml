@@ -1,0 +1,89 @@
+# ============================================================
+# OKF 提交工具配置（对标 rustfmt.toml：定义标准形态与门禁强度）
+# 工具：.okf/okf_commit.py
+# ============================================================
+
+# 时区：生成的 ISO8601 时间使用的本地偏移
+timezone: "+08:00"
+
+# 更新者署名。commit 必须显式 --by，格式由 okf_commit.py 校验：
+#   agent:<runtime>:<sessionId>   有会话的 agent（sessionId 用于追溯）
+#   process:<name>                无会话的自动化通道（定时任务/脚本）
+#   human:<id>                    用户本人手写；agent 不得代用
+canonical_order:
+  - type
+  - title
+  - description
+  - tags
+  - aliases
+  - status
+  - generated
+  - source_checked
+  - source_checked_at
+  - verified
+  - stale_after
+  - sources
+
+# ---- 必填门禁（lint 阶段，缺任一即拒绝提交）----
+required:
+  - type
+  - generated.by
+  - generated.at
+  - source_checked
+
+# ---- type 缺失时的默认值 ----
+type_fallback: "Note"
+type_infer:
+  kind_map:
+    note: "Note"
+    doc: "Doc"
+    media: "Asset"
+    image: "Asset"
+    video: "Asset"
+
+# ---- status 归一化到三态 ----
+status_map:
+  草案: draft
+  草稿: draft
+  待细化: draft
+  进行中: stable
+  稳定: stable
+  已完成: stable
+  正式: stable
+  搁置: deprecated
+  废弃: deprecated
+  已归档: deprecated
+status_fallback: stable
+status_legal: [draft, stable, deprecated]
+
+# ---- verified 追加策略 ----
+verified:
+  append_lint_actor: "process:okf-commit"
+  lint_method: "pre-commit-fmt-lint"
+  source_check_method: "source-check"
+
+# ---- stale_after 默认周期（天，按 type）----
+stale_after_days:
+  Note: 180
+  Doc: 365
+  Concept: 730
+  Asset: 730
+  Policy: 180
+  Metric: 365
+  default: 365
+
+# ---- 保留文件：不做 concept 必填校验，原样提交 ----
+reserved_filenames:
+  - index.md
+  - log.md
+  - readme.md
+  - skill.md
+
+# ---- log.md 自动维护（最新在最上）----
+log:
+  enabled: true
+  path: "log.md"
+  verbs:
+    created: "Creation"
+    updated: "Update"
+    deprecated: "Deprecation"
